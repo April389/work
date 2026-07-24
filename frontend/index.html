@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理系统</title>
+    <!-- 引入响应式CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 页面头部 -->
+        <header class="header">
+            <h1>📋 任务管理系统</h1>
+            <!-- 用户选择 -->
+            <div class="user-selector">
+                <label for="current-user">当前用户:</label>
+                <select id="current-user">
+                    <option value="1">用户A</option>
+                    <option value="2">用户B</option>
+                    <option value="3">用户C</option>
+                </select>
+                <button id="add-user-btn" class="btn btn-secondary">添加用户</button>
+            </div>
+        </header>
+
+        <!-- 统计信息 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="total-count">0</span>
+                <span class="stat-label">总任务</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value pending" id="pending-count">0</span>
+                <span class="stat-label">待办</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value in-progress" id="progress-count">0</span>
+                <span class="stat-label">进行中</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value completed" id="completed-count">0</span>
+                <span class="stat-label">已完成</span>
+            </div>
+        </div>
+
+        <!-- 筛选和排序 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="priority-filter">优先级:</label>
+                <select id="priority-filter">
+                    <option value="all">全部</option>
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="sort-by">排序:</label>
+                <select id="sort-by">
+                    <option value="created_at">创建时间</option>
+                    <option value="deadline">截止时间</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="sort-order">顺序:</label>
+                <select id="sort-order">
+                    <option value="desc">降序</option>
+                    <option value="asc">升序</option>
+                </select>
+            </div>
+            <button id="add-task-btn" class="btn btn-primary">+ 新建任务</button>
+        </div>
+
+        <!-- 看板区域 -->
+        <div class="kanban-board">
+            <!-- 待办列 -->
+            <div class="kanban-column" id="column-pending">
+                <div class="column-header pending-header">
+                    <h2>📌 待办</h2>
+                    <span class="column-count" id="count-pending">0</span>
+                </div>
+                <div class="column-content" id="content-pending"></div>
+            </div>
+
+            <!-- 进行中列 -->
+            <div class="kanban-column" id="column-in_progress">
+                <div class="column-header progress-header">
+                    <h2>🔄 进行中</h2>
+                    <span class="column-count" id="count-in_progress">0</span>
+                </div>
+                <div class="column-content" id="content-in_progress"></div>
+            </div>
+
+            <!-- 已完成列 -->
+            <div class="kanban-column" id="column-completed">
+                <div class="column-header completed-header">
+                    <h2>✅ 已完成</h2>
+                    <span class="column-count" id="count-completed">0</span>
+                </div>
+                <div class="column-content" id="content-completed"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑任务模态框 -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">新建任务</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                <div class="form-group">
+                    <label for="task-title">任务标题 *</label>
+                    <input type="text" id="task-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-description">任务描述</label>
+                    <textarea id="task-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority">优先级</label>
+                    <select id="task-priority">
+                        <option value="high">高</option>
+                        <option value="medium" selected>中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-deadline">截止时间</label>
+                    <input type="datetime-local" id="task-deadline">
+                </div>
+                <div class="form-group">
+                    <label for="task-status">状态</label>
+                    <select id="task-status">
+                        <option value="pending" selected>待办</option>
+                        <option value="in_progress">进行中</option>
+                        <option value="completed">已完成</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加用户</h3>
+                <button class="close-btn" onclick="closeUserModal()">&times;</button>
+            </div>
+            <form id="user-form">
+                <div class="form-group">
+                    <label for="user-username">用户名 *</label>
+                    <input type="text" id="user-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-email">邮箱 *</label>
+                    <input type="email" id="user-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="user-password">密码 *</label>
+                    <input type="password" id="user-password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 引入JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

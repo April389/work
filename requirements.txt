@@ -1,0 +1,15 @@
+# FastAPI框架依赖
+fastapi==0.104.1
+uvicorn==0.24.0.post1
+
+# 数据库相关依赖
+sqlalchemy==2.0.23
+pymysql==1.1.0
+
+# 数据验证依赖
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# 测试依赖
+pytest==7.4.3
+httpx==0.25.2
